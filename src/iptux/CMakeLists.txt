@@ -25,6 +25,7 @@ add_library(iptux
 	MainWindow.cpp
 	mess.cpp
 	output.cpp
+	PalInfo.cpp
 	ProgramData.cpp
 	RecvFile.cpp
 	RecvFileData.cpp

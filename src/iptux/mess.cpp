@@ -15,25 +15,6 @@
 
 namespace iptux {
 
-
-PalInfo::PalInfo():ipv4(0), segdes(NULL), version(NULL), user(NULL), host(NULL),
- name(NULL), group(NULL), photo(NULL), sign(NULL), iconfile(NULL), encode(NULL),
- flags(0), packetn(0), rpacketn(0)
-{}
-PalInfo::~PalInfo()
-{
-        g_free(segdes);
-        g_free(version);
-        g_free(user);
-        g_free(host);
-        g_free(name);
-        g_free(group);
-        g_free(photo);
-        g_free(sign);
-        g_free(iconfile);
-        g_free(encode);
-}
-
 GroupInfo::GroupInfo():grpid(0), type(GROUP_BELONG_TYPE_REGULAR), name(NULL),
  member(NULL), buffer(NULL), dialog(NULL)
 {}

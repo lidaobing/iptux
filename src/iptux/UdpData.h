@@ -22,11 +22,11 @@ namespace iptux {
 
 class UdpData {
 public:
+        static void UdpDataEntry(IptuxConfig& config, in_addr_t ipv4, const char buf[], size_t size);
+private:
         explicit UdpData(IptuxConfig& config);
         ~UdpData();
 
-        static void UdpDataEntry(IptuxConfig& config, in_addr_t ipv4, const char buf[], size_t size);
-private:
         void DispatchUdpData();
 
         void SomeoneLost();

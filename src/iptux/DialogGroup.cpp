@@ -548,7 +548,7 @@ void DialogGroup::BroadcastTextMsg(const gchar *msg)
         do {
                 gtk_tree_model_get(model, &iter, 0, &active, 3, &pal, -1);
                 if (active) {
-                        if (FLAG_ISSET(pal->flags, 0)) {
+                        if (pal->isCompatible()) {
                                 switch (grpinf->type) {
                                 case GROUP_BELONG_TYPE_BROADCAST:
                                         opttype = IPTUX_BROADCASTOPT;
@@ -566,8 +566,9 @@ void DialogGroup::BroadcastTextMsg(const gchar *msg)
                                 }
                                 cmd.SendUnitMsg(g_cthrd->UdpSockQuote(), pal,
                                                          opttype, msg);
-                        } else
+                        } else {
                                 cmd.SendGroupMsg(g_cthrd->UdpSockQuote(), pal, msg);
+                        }
                 }
         } while (gtk_tree_model_iter_next(model, &iter));
 }
