@@ -36,6 +36,8 @@ using namespace std;
 
 namespace iptux {
 
+static const char* commandModeAsString(int commandMode);
+
 /**
  * 类构造函数.
  */
@@ -84,7 +86,7 @@ void UdpData::DispatchUdpData()
 
         /* 决定消息去向 */
         commandno = iptux_get_dec_number(buf, ':', 4);
-        LOG_DEBUG("receive a message with commandno: %d", GET_MODE(commandno));
+        LOG_DEBUG("receive a message with commandno: %d(%s)", GET_MODE(commandno), commandModeAsString(GET_MODE(commandno)));
         switch (GET_MODE(commandno)) {
         case IPMSG_BR_ENTRY:
                 SomeoneEntry();
@@ -892,5 +894,33 @@ void UdpData::ThreadAskSharedFile(PalInfo *pal)
         } else
                 sfile.SendSharedInfoEntry(pal);
 }
+
+const char* commandModeAsString(int commandMode) {
+  switch(commandMode) {
+    case IPMSG_BR_ENTRY:
+      return "BR_ENTRY";
+    case IPMSG_BR_EXIT:
+      return "BR_EXIT";
+    case IPMSG_ANSENTRY:
+    return "ANSENTRY";
+    case IPMSG_BR_ABSENCE:
+    return "BR_ABSENCE";
+    case IPMSG_SENDMSG:
+    return "SENDMSG";
+    case IPMSG_RECVMSG:
+    return "RECVMSG";
+    case IPTUX_ASKSHARED:
+    return "ASKSHARED";
+    case IPTUX_SENDICON:
+    return "SENDICON";
+    case IPTUX_SENDSIGN:
+    return "SENDSIGN";
+    case IPTUX_SENDMSG:
+    return "SENDMSG";
+    default:
+      return "UNKNOWN";
+  }
+}
+
 
 }
