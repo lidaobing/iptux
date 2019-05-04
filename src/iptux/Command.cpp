@@ -625,7 +625,7 @@ void Command::CreateIconExtra() {
   int fd;
 
   env = g_get_user_config_dir();
-  snprintf(path, MAX_PATHLEN, "%s" ICON_PATH "/my-icon", env);
+  snprintf(path, MAX_PATHLEN, "%s" ICON_PATH "/my-icon.png", env);
   if ((fd = open(path, O_RDONLY)) == -1) return;
   len = xread(fd, buf + size, MAX_UDPLEN - size);
   close(fd);
