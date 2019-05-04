@@ -21,6 +21,16 @@ typedef void (* GActionCallback) (GSimpleAction *action,
 
 namespace iptux {
 
+static void init_icon_theme() {
+  char path[MAX_PATHLEN];
+
+  auto theme = gtk_icon_theme_get_default();
+  gtk_icon_theme_add_resource_path(theme, __PIXMAPS_PATH "/icon");
+  snprintf(path, MAX_PATHLEN, "%s/iptux/icon", g_get_user_config_dir());
+  gtk_icon_theme_add_resource_path(theme, path);
+}
+
+
 Application::Application(IptuxConfig& config)
 : config(config),
   data(nullptr),
@@ -66,6 +76,7 @@ void Application::onStartup(Application& self) {
   auto menubar = G_MENU_MODEL (gtk_builder_get_object (builder, "menubar"));
   gtk_application_set_menubar(GTK_APPLICATION(self.app), menubar);
   g_object_unref (builder);
+  init_icon_theme();
 }
 
 void Application::onActivate(Application& self) {
@@ -107,4 +118,5 @@ void Application::onToolsSharedManagement(void *, void *, Application &self) {
   }
   share_file_run(self.shareFile);
 }
+
 }
