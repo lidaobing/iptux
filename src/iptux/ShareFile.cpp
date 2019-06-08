@@ -14,13 +14,13 @@
 
 #include <sys/stat.h>
 
-#include "iptux-core/AnalogFS.h"
 #include "iptux-core/deplib.h"
 #include "iptux/dialog.h"
 #include "iptux/global.h"
 #include "iptux-core/support.h"
 #include "iptux-core/utils.h"
 #include "iptux/UiHelper.h"
+#include "iptux-core/ipmsg.h"
 
 using namespace std;
 
@@ -183,17 +183,15 @@ GtkTreeModel* CreateFileModel() {
  * @param model file-model
  */
 void FillFileModel(GtkTreeModel *model) {
-  AnalogFS afs;
   const char *iconname;
   GtkTreeIter iter;
   char *filesize;
   const char *filetype;
-  FileInfo *file;
 
   /* 将现在的共享文件填入model */
   for(FileInfo& file: g_cthrd->getProgramData()->GetSharedFileInfos()) {
     /* 获取文件大小 */
-    file.filesize = afs.ftwsize(file.filepath);
+    file.filesize = sizeOfFileOrDir(file.filepath);
     filesize = numeric_to_size(file.filesize);
     /* 获取文件类型 */
     switch (GET_MODE(file.fileattr)) {
@@ -274,11 +272,9 @@ void ApplySharedData(ShareFile* self) {
   GtkWidget *widget;
   GtkTreeModel *model;
   GtkTreeIter iter;
-  FileInfo *file;
   uint32_t fileattr;
   gchar *filepath;
   const gchar *passwd;
-  AnalogFS afs;
   struct stat st;
 
   /* 更新共享文件链表 */
@@ -294,7 +290,7 @@ void ApplySharedData(ShareFile* self) {
       file.fileid = g_cthrd->PbnQuote()++;
       file.fileattr = fileattr;
       file.filepath = filepath;
-      if (afs.stat(filepath, &st) == 0) {
+      if (stat(filepath, &st) == 0) {
         file.filectime = st.st_ctime;
       }
       g_cthrd->getProgramData()->AddShareFileInfo(move(file));
@@ -318,7 +314,6 @@ void ApplySharedData(ShareFile* self) {
  * @param list 文件链表
  */
 void AttachSharedFiles(ShareFile* self, GSList *list) {
-  AnalogFS afs;
   GtkWidget *widget;
   GtkTreeModel *model;
   GtkTreeIter iter;
@@ -341,7 +336,7 @@ void AttachSharedFiles(ShareFile* self, GSList *list) {
       continue;
     }
     /* 获取文件大小 */
-    pathsize = afs.ftwsize((const char *)tlist->data);
+    pathsize = sizeOfFileOrDir((const char *)tlist->data);
     filesize = numeric_to_size(pathsize);
     /* 获取文件类型 */
     if (S_ISREG(st.st_mode)) {
@@ -497,8 +492,8 @@ void ClearPassword(ShareFile* self) {
  * @param time the timestamp at which the data was received
  */
 void DragDataReceived(ShareFile *sfile, GdkDragContext *context,
-                                 gint x, gint y, GtkSelectionData *data,
-                                 guint info, guint time) {
+                                 gint, gint, GtkSelectionData *data,
+                                 guint, guint time) {
   GSList *list;
   if (!ValidateDragData(data, context, time)) {
     return;
