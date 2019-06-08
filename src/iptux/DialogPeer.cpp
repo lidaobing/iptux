@@ -17,11 +17,11 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <gdk/gdkkeysyms.h>
+#include <glib/gi18n.h>
 
 #include "iptux/HelpDialog.h"
 #include "iptux-core/SendFile.h"
 #include "iptux/callback.h"
-#include "iptux-core/deplib.h"
 #include "iptux/dialog.h"
 #include "iptux/global.h"
 #include "iptux-core/output.h"
@@ -109,7 +109,7 @@ void DialogPeer::UpdatePalData(PalInfo *pal) {
  * 插入好友数据.
  * @param pal 好友信息
  */
-void DialogPeer::InsertPalData(PalInfo *pal) {
+void DialogPeer::InsertPalData(PalInfo *) {
   //此函数暂且无须实现
 }
 
@@ -117,7 +117,7 @@ void DialogPeer::InsertPalData(PalInfo *pal) {
  * 删除好友数据.
  * @param pal 好友信息
  */
-void DialogPeer::DelPalData(PalInfo *pal) {
+void DialogPeer::DelPalData(PalInfo *) {
   //此函数暂且无须实现
 }
 

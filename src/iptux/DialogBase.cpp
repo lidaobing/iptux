@@ -15,11 +15,11 @@
 #include "DialogBase.h"
 
 #include <sys/stat.h>
+#include <glib/gi18n.h>
 
 #include "iptux/HelpDialog.h"
 #include "iptux-core/SendFile.h"
 #include "iptux/callback.h"
-#include "iptux-core/deplib.h"
 #include "iptux/global.h"
 #include "iptux-core/output.h"
 #include "iptux-core/support.h"

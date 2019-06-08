@@ -12,9 +12,10 @@
 #include "config.h"
 #include "DetectPal.h"
 
+#include <glib/gi18n.h>
+
 #include "iptux/UiCoreThread.h"
 #include "iptux/callback.h"
-#include "iptux-core/deplib.h"
 #include "iptux/global.h"
 #include "iptux-core/output.h"
 #include "iptux/UiHelper.h"

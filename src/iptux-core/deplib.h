@@ -14,9 +14,6 @@
 
 #include <glib/gi18n.h>
 
-#define ATOM_OBJECT 0xFFFC
-#define OCCUPY_OBJECT 0x01
-#define NULL_OBJECT 0x02
 #define GINT(x) ((gint)(x))
 
 #endif
