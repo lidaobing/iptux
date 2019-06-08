@@ -9,6 +9,7 @@ header_files = files([
     'Event.h',
     'TransFileModel.h',
     'Models.h',
+    'Exception.h',
 ])
 install_headers(header_files, subdir: 'iptux-core')
 

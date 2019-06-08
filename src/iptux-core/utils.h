@@ -107,6 +107,8 @@ ssize_t read_ipmsg_prefix(int fd, void *buf, size_t count);
 ssize_t read_ipmsg_filedata(int fd, void *buf, size_t count, size_t offset);
 ssize_t read_ipmsg_dirfiles(int fd, void *buf, size_t count, size_t offset);
 ssize_t read_ipmsg_fileinfo(int fd, void *buf, size_t count, size_t offset);
+int64_t sizeOfFileOrDir(const std::string& fname);
+int mergepath(char tpath[], const char *npath);
 
 }  // namespace iptux
 #endif

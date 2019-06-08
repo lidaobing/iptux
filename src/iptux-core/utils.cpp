@@ -25,6 +25,7 @@
 #ifndef __APPLE__
 #include <sys/vfs.h>
 #endif
+#include <sys/stat.h>
 
 #include "iptux-core/ipmsg.h"
 #include "iptux-core/output.h"
@@ -765,5 +766,86 @@ ssize_t read_ipmsg_fileinfo(int fd, void *buf, size_t count, size_t offset) {
 
   return offset;
 }
+
+int64_t sizeOfFileOrDir(const std::string& fname) {
+  auto dir_name = fname.c_str();
+
+  // 由于系统中存在使用此方法读取文件的大小的调用，因此需要判断文件dir_name是文件还是目录
+  struct stat st;
+  int result = stat(dir_name, &st);
+  if (result != 0) {
+    // Fail to determine file type, return 0 (判断文件类型失败，直接返回 0)
+    pwarning(_("stat file \"%s\" failed: %s"), dir_name, strerror(errno));
+    return 0;
+  }
+  if (S_ISREG(st.st_mode)) {
+    return st.st_size;
+  }
+  if (!S_ISDIR(st.st_mode)) {
+    pwarning(_("path %s is not file or directory: st_mode(%x)"), dirname,
+             st.st_mode);
+    return 0;
+  }
+  // 到了这里就一定是目录了
+  DIR *dir = opendir(dir_name);
+  if (dir == NULL) {
+    pwarning(_("opendir on \"%s\" failed: %s"), dir_name, strerror(errno));
+    return 0;
+  }
+
+  struct dirent *dirt;
+  int64_t sumsize = 0;
+  while ((dirt = readdir(dir))) {
+    if (strcmp(dirt->d_name, ".") == 0) {
+      continue;
+    }
+    if (strcmp(dirt->d_name, "..") == 0) {
+      continue;
+    }
+    char tpath[MAX_PATHLEN];
+    strcpy(tpath, dir_name);
+    mergepath(tpath, dirt->d_name);
+    struct stat st;
+    if (stat(tpath, &st) == -1) {
+      continue;
+    }
+    if (S_ISDIR(st.st_mode)) {
+      sumsize += sizeOfFileOrDir(tpath);
+    } else if (S_ISREG(st.st_mode)) {
+      sumsize += st.st_size;
+    } else {
+      // ignore other files
+    }
+  }
+  return sumsize;
+}
+
+/**
+ * 合并路径.
+ * @param tpath[] 基路径
+ * @param npath 需要被合并的路径
+ * @return 成功与否
+ */
+int mergepath(char tpath[], const char *npath) {
+  size_t len;
+  char *ptr;
+
+  if (strcmp(npath, ".") == 0) return 0;
+
+  if (*npath != '/') {
+    if (strcmp(npath, "..") == 0) {
+      ptr = strrchr(tpath, '/');
+      if (ptr != tpath) *ptr = '\0';
+    } else {
+      len = strlen(tpath);
+      ptr = (char *)(*(tpath + 1) != '\0' ? "/" : "");
+      snprintf(tpath + len, MAX_PATHLEN - len, "%s%s", ptr, npath);
+    }
+  } else
+    snprintf(tpath, MAX_PATHLEN, "%s", npath);
+
+  return 0;
+}
+
 
 }  // namespace iptux
