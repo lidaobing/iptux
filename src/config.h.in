@@ -17,4 +17,11 @@
 #  define O_LARGEFILE 0
 #endif
 
+#define GCONF_PATH "/apps/iptux"
+#define IPTUX_PATH "/iptux"
+#define LOG_PATH "/iptux/log"
+#define PIC_PATH "/iptux/pic"
+#define ICON_PATH "/iptux/icon"
+#define PHOTO_PATH "/iptux/photo"
+
 #endif // IPTUX_CONFIG_H

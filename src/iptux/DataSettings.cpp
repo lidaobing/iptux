@@ -14,12 +14,12 @@
 
 #include <unistd.h>
 #include <dirent.h>
+#include <glib/gi18n.h>
 
 #include "iptux/UiCoreThread.h"
 #include "iptux/UiProgramData.h"
 #include "iptux/SoundSystem.h"
 #include "iptux/callback.h"
-#include "iptux-core/deplib.h"
 #include "iptux/global.h"
 #include "iptux-core/ipmsg.h"
 #include "iptux-core/output.h"
