@@ -13,6 +13,7 @@
 #include "Command.h"
 
 #include <cinttypes>
+#include <gio/gio.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -430,16 +431,38 @@ void Command::SendMySign(int sock, CPPalInfo pal) {
 void Command::SendSublayer(int sock, CPPalInfo pal, uint32_t opttype,
                            const char *path) {
   LOG_DEBUG("send tcp message to %s, op %d, file %s", pal->GetKey().ToString().c_str(), int(opttype), path);
-  struct sockaddr_in addr;
-  int fd;
 
   CreateCommand(opttype | IPTUX_SENDSUBLAYER, NULL);
   ConvertEncode(pal->encode);
 
-  bzero(&addr, sizeof(addr));
-  addr.sin_family = AF_INET;
-  addr.sin_port = htons(IPTUX_DEFAULT_PORT);
-  addr.sin_addr.s_addr = pal->ipv4;
+  GSocketClient* client = g_socket_client_new();
+  GError* error = nullptr;
+  GSocketConnection* connection = g_socket_client_connect_to_host(client,
+    pal->GetKey().GetIpv4String().c_str(),
+    pal->GetKey().GetPort(),
+    nullptr,
+    &error);
+  if(error) {
+    LOG_ERROR("connect to %s failed: %s", pal->GetKey().ToString().c_str(), error->message);
+    g_object_unref(client);
+    g_clear_error(&error);
+    throw Exception(ErrorCode::TCP_CONNECT_FAILED);
+  }
+
+  GOutputStream* out_stream = g_io_stream_get_output_stream(G_IO_STREAM(connection));
+  g_output_stream_write(out_stream, buf, size, nullptr, &error);
+
+  if(error) {
+    LOG_ERROR("send data to %s failed: %s", pal->GetKey().ToString().c_str(), error->message);
+    g_object_unref(out_stream);
+    g_object_unref(connection);
+    g_object_unref(client);
+    g_clear_error(&error);
+    throw Exception(ErrorCode::TCP_SEND_FAILED);
+  }
+
+  g_object_unref(client);
+
 
   if (((connect(sock, (struct sockaddr *)&addr, sizeof(addr)) == -1) &&
        (errno != EINTR)) ||
