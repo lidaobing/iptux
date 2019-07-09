@@ -17,14 +17,15 @@
 
 #include "iptux-core/Exception.h"
 #include "iptux-core/internal/Command.h"
+#include "iptux-core/internal/ipmsg.h"
 #include "iptux-core/internal/RecvFileData.h"
 #include "iptux-core/internal/SendFile.h"
 #include "iptux-core/internal/support.h"
 #include "iptux-core/internal/TcpData.h"
 #include "iptux-core/internal/UdpData.h"
-#include "iptux-core/internal/ipmsg.h"
-#include "iptux-utils/utils.h"
+#include "iptux-core/internal/UdpServer.h"
 #include "iptux-utils/output.h"
+#include "iptux-utils/utils.h"
 
 using namespace std;
 using namespace std::placeholders;
@@ -80,6 +81,8 @@ struct CoreThread::Impl {
   map<int, shared_ptr<TransAbstract>> transTasks;
   deque<shared_ptr<const Event>> waitingEvents;
   std::mutex waitingEventsMutex;
+
+  unique_ptr<UdpServer> udpServer;
 
   future<void> udpFuture;
   future<void> tcpFuture;
@@ -160,7 +163,11 @@ void CoreThread::start() {
 }
 
 void CoreThread::bind_iptux_port() {
+  auto bind_ip = config->GetString("bind_ip", "0.0.0.0");
   int port = config->GetInt("port", IPTUX_DEFAULT_PORT);
+  pImpl->udpServer = make_unique<UdpServer>(bind_ip, port, nullptr);
+  pImpl->udpServer->start();
+
   struct sockaddr_in addr;
   tcpSock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
   socket_enable_reuse(tcpSock);
@@ -179,7 +186,6 @@ void CoreThread::bind_iptux_port() {
   addr.sin_family = AF_INET;
   addr.sin_port = htons(port);
 
-  auto bind_ip = config->GetString("bind_ip", "0.0.0.0");
   addr.sin_addr = inAddrFromString(bind_ip);
   if (::bind(tcpSock, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
     int ec = errno;
